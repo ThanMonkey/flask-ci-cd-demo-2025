@@ -1532,7 +1532,7 @@ git push origin main
 ```
 ## บันทึกรูปผลการทดลอง หน้า GitHub Actions
 ```bash
-
+![alt text](image-2.png)
 
 ```
 
