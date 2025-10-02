@@ -8,6 +8,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.9'
+  APP_DIR: my-flask-app
 
 permissions:
   contents: read
@@ -58,7 +59,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd my-flask-app
+          cd ${{ env.APP_DIR }}
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-cov
@@ -80,7 +81,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          cd my-flask-app
+          cd ${{ env.APP_DIR }}
           export PYTHONPATH=.
           export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/testdb"
           export REDIS_URL="redis://localhost:6379"
@@ -94,7 +95,7 @@ jobs:
         if: always()
         with:
           name: coverage-report
-          path: backend/htmlcov/
+          path: ${{ env.APP_DIR }}/htmlcov/
           retention-days: 5
 
       - name: Upload coverage XML
@@ -102,7 +103,7 @@ jobs:
         if: always()
         with:
           name: coverage-xml
-          path: backend/coverage.xml
+          path: ${{ env.APP_DIR }}/coverage.xml
           retention-days: 5
 
   security-snyk:
@@ -122,7 +123,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd my-flask-app
+          cd ${{ env.APP_DIR }}
           pip install -r requirements.txt
 
       - name: Run Snyk Dependencies Scan
@@ -131,7 +132,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --severity-threshold=high --file=backend/requirements.txt
+          args: --severity-threshold=high --file=${{ env.APP_DIR }}/requirements.txt
           command: test
 
       - name: Run Snyk Code Scan
@@ -150,7 +151,7 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --file=backend/requirements.txt
+          args: --file=${{ env.APP_DIR }}/requirements.txt
           command: monitor
 
   security-additional:
@@ -173,14 +174,14 @@ jobs:
       - name: Run Safety check
         run: |
           pip install safety
-          cd my-flask-app
+          cd ${{ env.APP_DIR }}
           safety check --json --output safety-report.json || echo "⚠️ Safety warnings found"
         continue-on-error: true
 
       - name: Run Bandit SAST
         run: |
           pip install bandit
-          cd my-flask-app
+          cd ${{ env.APP_DIR }}
           bandit -r . -f json -o bandit-report.json -ll || echo "⚠️ Bandit warnings found"
         continue-on-error: true
 
@@ -205,8 +206,8 @@ jobs:
         with:
           name: security-reports
           path: |
-            backend/safety-report.json
-            backend/bandit-report.json
+            ${{ env.APP_DIR }}/safety-report.json
+            ${{ env.APP_DIR }}/bandit-report.json
           retention-days: 30
 
   build:
@@ -329,4 +330,3 @@ jobs:
           echo "✓ Security: ${{ needs.security-additional.result }}"
           echo "✓ Build: ${{ needs.build.result }}"
           echo "=========================="
-
