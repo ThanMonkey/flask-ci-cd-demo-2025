@@ -57,8 +57,8 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
+        working-directory: backend
         run: |
-          cd backend
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-cov
@@ -79,15 +79,15 @@ jobs:
           echo "✅ Redis is ready!"
 
       - name: Run tests with coverage
-        run: |
-          cd backend
-          export PYTHONPATH=.
-          export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/testdb"
-          export REDIS_URL="redis://localhost:6379"
-          export FLASK_ENV=testing
-          pytest tests/ -v --cov=. --cov-report=xml --cov-report=html --cov-report=term
+        working-directory: backend
         env:
+          PYTHONPATH: .
+          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb
+          REDIS_URL: redis://localhost:6379
+          FLASK_ENV: testing
           SECRET_KEY: test-secret-key
+        run: |
+          pytest tests/ -v --cov=. --cov-report=xml --cov-report=html --cov-report=term
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
@@ -121,9 +121,8 @@ jobs:
           cache: 'pip'
 
       - name: Install dependencies
-        run: |
-          cd backend
-          pip install -r requirements.txt
+        working-directory: backend
+        run: pip install -r requirements.txt
 
       - name: Run Snyk Dependencies Scan
         uses: snyk/actions/python@master
@@ -171,16 +170,16 @@ jobs:
           cache: 'pip'
 
       - name: Run Safety check
+        working-directory: backend
         run: |
           pip install safety
-          cd backend
           safety check --json --output safety-report.json || echo "⚠️ Safety warnings found"
         continue-on-error: true
 
       - name: Run Bandit SAST
+        working-directory: backend
         run: |
           pip install bandit
-          cd backend
           bandit -r . -f json -o bandit-report.json -ll || echo "⚠️ Bandit warnings found"
         continue-on-error: true
 
@@ -329,4 +328,3 @@ jobs:
           echo "✓ Security: ${{ needs.security-additional.result }}"
           echo "✓ Build: ${{ needs.build.result }}"
           echo "=========================="
-
