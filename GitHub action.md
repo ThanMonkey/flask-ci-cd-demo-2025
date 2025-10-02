@@ -1551,7 +1551,7 @@ git push origin feature/test-pr
 ## บันทึกรูปผลการทดลอง 
 ```bash
 
-
+![alt text](image-3.png)
 ```
 
 

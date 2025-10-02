@@ -58,7 +58,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend
+          cd my-flask-app
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest-cov
@@ -80,7 +80,7 @@ jobs:
 
       - name: Run tests with coverage
         run: |
-          cd backend
+          cd my-flask-app
           export PYTHONPATH=.
           export DATABASE_URL="postgresql://testuser:testpass@localhost:5432/testdb"
           export REDIS_URL="redis://localhost:6379"
@@ -122,7 +122,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd backend
+          cd my-flask-app
           pip install -r requirements.txt
 
       - name: Run Snyk Dependencies Scan
@@ -173,14 +173,14 @@ jobs:
       - name: Run Safety check
         run: |
           pip install safety
-          cd backend
+          cd my-flask-app
           safety check --json --output safety-report.json || echo "⚠️ Safety warnings found"
         continue-on-error: true
 
       - name: Run Bandit SAST
         run: |
           pip install bandit
-          cd backend
+          cd my-flask-app
           bandit -r . -f json -o bandit-report.json -ll || echo "⚠️ Bandit warnings found"
         continue-on-error: true
 
