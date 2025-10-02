@@ -8,7 +8,7 @@ on:
 
 env:
   PYTHON_VERSION: '3.9'
-  APP_DIR: my-flask-app
+  APP_DIR: my-flask-app/backend
 
 permissions:
   contents: read
