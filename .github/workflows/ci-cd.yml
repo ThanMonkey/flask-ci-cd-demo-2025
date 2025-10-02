@@ -57,6 +57,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: 'pip'
 
+      - name: List files for debug
+        run: ls -R
+
       - name: Install dependencies
         run: |
           cd ${{ env.APP_DIR }}
